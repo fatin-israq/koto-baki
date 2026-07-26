@@ -1,0 +1,352 @@
+/* =========================================================
+   LOGIN & REGISTER SCREEN STYLES (Tali Khata Theme)
+   ========================================================= */
+
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  background: #0c0a09;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  font-family: 'Hind Siliguri', sans-serif;
+}
+
+/* Ambient glows */
+.login-glow-red {
+  position: absolute;
+  top: -150px;
+  left: -150px;
+  width: 500px;
+  height: 500px;
+  background: rgba(158, 43, 37, 0.18);
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  animation: glowBreathe 4s ease-in-out infinite alternate;
+}
+
+.login-glow-amber {
+  position: absolute;
+  bottom: -150px;
+  right: -150px;
+  width: 500px;
+  height: 500px;
+  background: rgba(201, 138, 43, 0.15);
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  animation: glowBreathe 5s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes glowBreathe {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.7; }
+  100% { transform: scale(1.15) translate(20px, 20px); opacity: 1; }
+}
+
+/* Watermark background calligraphic 'খ' */
+.login-watermark {
+  position: absolute;
+  right: 10%;
+  bottom: 8%;
+  font-family: 'Baloo Da 2', sans-serif;
+  font-size: 260px;
+  font-weight: 800;
+  color: rgba(201, 138, 43, 0.03);
+  pointer-events: none;
+  z-index: 0;
+  line-height: 1;
+}
+
+/* The Paper Card */
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--paper, #EDE4CC);
+  border-radius: 12px 24px 24px 12px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), inset -8px 0 20px rgba(90, 74, 42, 0.1);
+  padding: 36px 30px;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(90, 74, 42, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: cardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cardSlideUp {
+  0% { opacity: 0; transform: translateY(35px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-card.has-error {
+  animation: inkShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes inkShake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* Ruled paper background pattern */
+.login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 35px,
+    var(--paper-line, rgba(90, 74, 42, 0.14)) 35px,
+    var(--paper-line, rgba(90, 74, 42, 0.14)) 36px
+  );
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+/* Red margin line */
+.login-margin-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 26px;
+  width: 2.5px;
+  background: var(--margin-red, #9E2B25);
+  opacity: 0.6;
+  z-index: 1;
+}
+
+/* Header Branding */
+.login-header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-icon-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2E1500 0%, #1A0A00 100%);
+  border: 2px solid var(--mustard, #C98A2B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 0 20px rgba(201, 138, 43, 0.35);
+  color: var(--mustard, #C98A2B);
+  animation: badgePulse 2.5s infinite;
+}
+
+@keyframes badgePulse {
+  0% { box-shadow: 0 0 0 0 rgba(201, 138, 43, 0.4); }
+  70% { box-shadow: 0 0 0 14px rgba(201, 138, 43, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(201, 138, 43, 0); }
+}
+
+.login-title {
+  font-family: 'Baloo Da 2', sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: var(--ink, #1E2A38);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--ink-soft, #4B5768);
+  font-weight: 500;
+}
+
+.login-divider {
+  width: 70px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--mustard, #C98A2B), transparent);
+  margin: 12px auto 0;
+}
+
+/* Tab Switcher */
+.login-tabs {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  border-bottom: 1.5px solid var(--paper-line, rgba(90, 74, 42, 0.14));
+  margin-bottom: 24px;
+}
+
+.login-tab-btn {
+  flex: 1;
+  padding: 10px 0;
+  background: none;
+  border: none;
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-soft, #4B5768);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.login-tab-btn.active {
+  color: var(--ink, #1E2A38);
+  font-weight: 700;
+}
+
+.login-tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5px;
+  left: 15%;
+  width: 70%;
+  height: 2.5px;
+  background: var(--mustard, #C98A2B);
+  border-radius: 2px;
+}
+
+/* Form Styles */
+.login-form {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.input-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft, #4B5768);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 4px;
+  color: var(--ink-soft, #4B5768);
+  pointer-events: none;
+}
+
+.khata-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(90, 74, 42, 0.25);
+  padding: 10px 10px 10px 30px;
+  font-family: 'Hind Siliguri', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink, #1E2A38);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.khata-input::placeholder {
+  color: rgba(75, 87, 104, 0.5);
+  font-weight: 400;
+}
+
+.khata-input:focus {
+  border-bottom-color: var(--mustard, #C98A2B);
+  background: rgba(250, 246, 234, 0.4);
+}
+
+/* Error Banner */
+.error-msg {
+  background: rgba(158, 43, 37, 0.12);
+  border: 1px solid rgba(158, 43, 37, 0.3);
+  color: var(--margin-red, #9E2B25);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Stamp Button */
+.stamp-btn {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--mustard, #C98A2B) 0%, var(--mustard-deep, #A66E1E) 100%);
+  color: #ffffff;
+  border: 2px solid var(--ink, #1E2A38);
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-family: 'Hind Siliguri', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--ink, #1E2A38);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+}
+
+.stamp-btn:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink, #1E2A38);
+  background: linear-gradient(135deg, #D49433 0%, #B37722 100%);
+}
+
+.stamp-btn:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0 var(--ink, #1E2A38);
+}
+
+.stamp-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Footer / Demo hint */
+.login-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.demo-hint {
+  font-size: 12px;
+  color: var(--ink-soft, #4B5768);
+  background: rgba(90, 74, 42, 0.07);
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.demo-hint:hover {
+  background: rgba(90, 74, 42, 0.14);
+}
+
+.demo-hint strong {
+  color: var(--margin-red, #9E2B25);
+}

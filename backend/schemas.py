@@ -1,6 +1,31 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
+
+class UserRegister(BaseModel):
+    shop_name: str
+    email: EmailStr
+    password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    shop_name: str
+    user_id: int
+    email: str
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    shop_name: str
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
 
 class TransactionBase(BaseModel):
     customer: str

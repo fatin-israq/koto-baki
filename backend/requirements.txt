@@ -1,6 +1,9 @@
 fastapi
 uvicorn
 sqlalchemy
-pydantic
+pydantic[email]
 python-multipart
 rapidfuzz
+passlib[bcrypt]
+python-jose[cryptography]
+httpx

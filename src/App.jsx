@@ -4,6 +4,7 @@ import IntroAnimation from './components/IntroAnimation';
 import WriteInAnimation from './components/WriteInAnimation';
 import PageFlipView from './components/PageFlipView';
 import PieChart from './components/PieChart';
+import LoginScreen from './components/LoginScreen';
 import { fetchLedger, transcribeAudio, createTransaction } from './services/api';
 
 // Demo transcripts simulating Gemma 4's Native Audio JSON results (used as fallback or for testing)
@@ -59,7 +60,15 @@ function Icon({ name }) {
 }
 
 export function App() {
-  const [appState, setAppState] = useState("intro"); // intro | main
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem("kb_user");
+    return saved ? JSON.parse(saved) : null;
+  });
+  
+  const [appState, setAppState] = useState(() => {
+    return localStorage.getItem("kb_token") ? "intro" : "login"; // login | intro | main
+  });
+  
   const [screen, setScreen] = useState("home"); // home | baki | sales | customers | all
   const [micState, setMicState] = useState("idle"); // idle | listening | processing | preview
   const [isAnimating, setIsAnimating] = useState(false);
@@ -69,6 +78,20 @@ export function App() {
   const [activeReminderCustomer, setActiveReminderCustomer] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [recognitionObj, setRecognitionObj] = useState(null);
+
+  const handleLoginSuccess = (token, user) => {
+    localStorage.setItem("kb_token", token);
+    localStorage.setItem("kb_user", JSON.stringify(user));
+    setCurrentUser(user);
+    setAppState("intro");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("kb_token");
+    localStorage.removeItem("kb_user");
+    setCurrentUser(null);
+    setAppState("login");
+  };
 
   // Debug logger for state changes
   useEffect(() => {
@@ -85,11 +108,13 @@ export function App() {
   const [ledger, setLedger] = useState([]);
 
   useEffect(() => {
-    fetchLedger().then(setLedger).catch(err => {
-      console.error("Failed to fetch ledger, falling back to demo", err);
-      setLedger(demoTranscripts.map((t, index) => ({ ...t, id: index + 1 })));
-    });
-  }, []);
+    if (appState !== "login") {
+      fetchLedger().then(setLedger).catch(err => {
+        console.error("Failed to fetch ledger, falling back to demo", err);
+        setLedger(demoTranscripts.map((t, index) => ({ ...t, id: index + 1 })));
+      });
+    }
+  }, [appState]);
 
   // Compute shop totals
   const saleTotal = ledger.filter((e) => e.type === "sale").reduce((s, e) => s + e.amount, 0);
@@ -240,9 +265,13 @@ export function App() {
     chunkedLedger.push(["আজ", []]);
   }
 
+  if (appState === "login") {
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <>
-      {appState === "intro" && <IntroAnimation onComplete={() => setAppState("main")} />}
+      {appState === "intro" && <IntroAnimation shopName={currentUser?.shopName} onComplete={() => setAppState("main")} />}
       <div className="device-container">
         <div className="device">
         {/* Red Margin Line */}
@@ -253,8 +282,8 @@ export function App() {
           <div className="pc-brand">
             <div className="logo-icon">📖</div>
             <div className="brand-text">
-              <span className="main-title">মুদি দোকান খাতা</span>
-              <small className="sub-title">Mudi Dokan — Voice Ledger</small>
+              <span className="main-title">{currentUser?.shopName || "মুদি দোকান খাতা"}</span>
+              <small className="sub-title">{currentUser?.email || "Mudi Dokan — Voice Ledger"}</small>
             </div>
           </div>
 
@@ -318,6 +347,14 @@ export function App() {
                 <span className="val baki">৳{bakiTotal}</span>
               </div>
             </div>
+            <button className="logout-btn sidebar-logout-btn" onClick={handleLogout} title="লগআউট করুন">
+              <span>লগআউট</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
           </div>
         </aside>
 
@@ -327,8 +364,8 @@ export function App() {
           <header className="mobile-header">
             {screen === "home" ? (
               <div className="brand">
-                মুদি দোকান খাতা
-                <small>Mudi Dokan — voice ledger</small>
+                {currentUser?.shopName || "মুদি দোকান খাতা"}
+                <small>{currentUser?.email || "Mudi Dokan — voice ledger"}</small>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -343,6 +380,15 @@ export function App() {
                 </div>
               </div>
             )}
+
+            <button className="logout-btn" onClick={handleLogout} title="লগআউট করুন">
+              <span>লগআউট</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
           </header>
 
           {/* PC Header (visible >= 768px) */}
@@ -374,6 +420,15 @@ export function App() {
 
               <button className="pc-quick-voice-btn" onClick={startListening}>
                 🎙️ নতুন হিসাব
+              </button>
+
+              <button className="logout-btn" onClick={handleLogout} title="লগআউট করুন">
+                <span>লগআউট</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
               </button>
             </div>
           </header>
