@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import IntroAnimation from './components/IntroAnimation';
 import WriteInAnimation from './components/WriteInAnimation';
 import PageFlipView from './components/PageFlipView';
+import { fetchLedger, transcribeAudio, createTransaction } from './services/api';
 
-// Demo transcripts simulating Gemma 4's Native Audio JSON results
+// Demo transcripts simulating Gemma 4's Native Audio JSON results (used as fallback or for testing)
 const demoTranscripts = [
   { heard: "“করিম ভাইকে ২০০ টাকার বাকিতে একটা শার্ট দিলাম”", customer: "করিম ভাই", item: "শার্ট", amount: 200, type: "baki", confidence: 0.94 },
   { heard: "“রহিমা আপা ৫০ টাকার চা-বিস্কুট কিনলেন, ক্যাশ”", customer: "রহিমা আপা", item: "চা ও বিস্কুট", amount: 50, type: "sale", confidence: 0.97 },
@@ -68,9 +69,14 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Initialize with sample ledger data
-  const [ledger, setLedger] = useState(
-    demoTranscripts.map((t, index) => ({ ...t, id: index + 1 }))
-  );
+  const [ledger, setLedger] = useState([]);
+
+  useEffect(() => {
+    fetchLedger().then(setLedger).catch(err => {
+      console.error("Failed to fetch ledger, falling back to demo", err);
+      setLedger(demoTranscripts.map((t, index) => ({ ...t, id: index + 1 })));
+    });
+  }, []);
 
   // Compute shop totals
   const saleTotal = ledger.filter((e) => e.type === "sale").reduce((s, e) => s + e.amount, 0);
@@ -82,14 +88,45 @@ export function App() {
   });
   const bakiTotal = Object.values(bakiByCust).reduce((s, v) => s + Math.max(v, 0), 0);
 
-  // Trigger Mic Listening
+  // Trigger Mic Listening using Web Speech API
   const startListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert("Your browser does not support Speech Recognition. Please try using Chrome.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'bn-BD'; // Bengali language code
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
     setMicState("listening");
-    setTimeout(() => {
-      const entry = demoTranscripts[demoIndex % demoTranscripts.length];
-      setPendingEntry(entry);
-      setMicState("preview");
-    }, 1300);
+
+    recognition.onresult = async (event) => {
+      const transcript = event.results[0][0].transcript;
+      try {
+        const result = await transcribeAudio(null, transcript);
+        setPendingEntry(result);
+        setMicState("preview");
+      } catch (e) {
+        console.error(e);
+        setMicState("idle");
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setMicState("idle");
+    };
+
+    recognition.onend = () => {
+      // If ended but still listening (no result came), reset state
+      setMicState((prev) => (prev === "listening" ? "idle" : prev));
+    };
+
+    recognition.start();
   };
 
   const retryMic = () => {
@@ -104,13 +141,18 @@ export function App() {
     }
   };
 
-  const handleAnimationComplete = () => {
-    const newEntry = { ...pendingEntry, id: Date.now() };
-    setLedger((prev) => [...prev, newEntry]);
-    setNewlyAddedId(newEntry.id);
-    setDemoIndex((prev) => prev + 1);
-    setIsAnimating(false);
-    setPendingEntry(null);
+  const handleAnimationComplete = async () => {
+    try {
+      const newEntry = await createTransaction(pendingEntry);
+      setLedger((prev) => [...prev, newEntry]);
+      setNewlyAddedId(newEntry.id);
+      setDemoIndex((prev) => prev + 1);
+    } catch (err) {
+      console.error("Failed to save transaction", err);
+    } finally {
+      setIsAnimating(false);
+      setPendingEntry(null);
+    }
 
     try {
       confetti({
