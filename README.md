@@ -13,6 +13,19 @@ Instead of typing out transactions, shopkeepers can simply speak them naturally 
 > [!NOTE]
 > This project was developed as part of the **Gemma @ Bangladesh Hybrid Hackathon ’26 (Native Audio & Voice Track)**.
 
+## 🎬 Demo Video & Screenshots
+
+[![Watch Demo Video](https://img.youtube.com/vi/AQj-2s00JZE/0.jpg)](https://youtu.be/AQj-2s00JZE)
+
+▶️ **[Watch the full Demo Video on YouTube](https://youtu.be/AQj-2s00JZE)**
+
+### Interface Preview
+
+| Main Dashboard | Voice Input Interface | All Transactions |
+| :---: | :---: | :---: |
+| ![Dashboard](Screenshots/Dashboard.png) | ![Voice Input Listening Screen](<Screenshots/Voice Input Listening Screen.png>) | ![All Transactions](<Screenshots/All Transaction.png>) |
+
+
 ## Key Features
 
 - **Voice-First Input:** Speak transactions naturally; no manual data entry or complex POS interfaces required.
