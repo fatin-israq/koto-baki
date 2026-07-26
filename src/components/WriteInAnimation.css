@@ -1,18 +1,21 @@
 .write-in-overlay {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  z-index: 10;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 9999;
   pointer-events: none;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: transparent;
 }
 
 .khata-page-mock {
-  position: relative;
+  position: absolute;
+  top: 0; left: 0;
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(
+  background-color: var(--paper-bg, #F4F1DE);
+  background-image: repeating-linear-gradient(
     transparent,
     transparent 39px,
     var(--paper-line) 39px,
@@ -22,9 +25,22 @@
   overflow: hidden;
 }
 
+.mock-header {
+  position: absolute;
+  top: 20px;
+  left: 80px;
+  right: 20px;
+  color: var(--ink-dark);
+}
+
+.mock-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
 .mock-entries {
   position: absolute;
-  top: 60px;
+  top: 100px;
   left: 80px;
   right: 20px;
   font-family: 'Hind Siliguri', sans-serif;

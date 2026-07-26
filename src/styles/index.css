@@ -739,9 +739,10 @@ main::-webkit-scrollbar-thumb {
 .ledger-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px 6px;
-  border-bottom: 1px solid var(--paper-line);
+  align-items: flex-start;
+  padding: 0 6px;
+  height: 80px; /* Exactly 2 background lines (40px each) */
+  border-bottom: none; /* Let the background lines do the work */
   transition: background-color 0.2s;
 }
 
@@ -765,14 +766,16 @@ main::-webkit-scrollbar-thumb {
 
 .ledger-row .who {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
+  line-height: 40px; /* First line */
 }
 
 .ledger-row .what {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-soft);
-  margin-top: 2px;
+  margin-top: 0;
+  line-height: 40px; /* Second line */
 }
 
 .type-badge {
@@ -781,6 +784,8 @@ main::-webkit-scrollbar-thumb {
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 6px;
+  line-height: normal;
+  vertical-align: middle;
 }
 
 .type-badge.baki { background: #F5D5D3; color: var(--margin-red); border: 1px solid #E6B5B1; }
@@ -792,6 +797,7 @@ main::-webkit-scrollbar-thumb {
   font-weight: 700;
   font-size: 15px;
   white-space: nowrap;
+  line-height: 80px; /* Vertically center across both lines */
 }
 
 .ledger-row .amt.baki { color: var(--margin-red); }

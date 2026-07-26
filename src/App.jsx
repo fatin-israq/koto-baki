@@ -685,7 +685,7 @@ export function App() {
           {isAnimating && pendingEntry && (
             <WriteInAnimation 
               entry={pendingEntry} 
-              existingEntriesCount={ledger.length}
+              existingEntries={ledger}
               onComplete={handleAnimationComplete} 
             />
           )}
