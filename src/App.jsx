@@ -337,8 +337,8 @@ export function App() {
           <div className="pc-brand">
             <div className="logo-icon">📖</div>
             <div className="brand-text">
-              <span className="main-title">মুদি দোকান খাতা</span>
-              <small className="sub-title">Mudi Dokan — Voice Ledger</small>
+              <span className="main-title">কত বাকি</span>
+              <small className="sub-title">Koto Baki — Voice Ledger</small>
             </div>
           </div>
 
@@ -411,8 +411,8 @@ export function App() {
           <header className="mobile-header">
             {screen === "home" ? (
               <div className="brand">
-                মুদি দোকান খাতা
-                <small>Mudi Dokan — voice ledger</small>
+                কত বাকি
+                <small>Koto Baki — voice ledger</small>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -566,7 +566,7 @@ export function App() {
                                 <textarea
                                   readOnly
                                   rows={3}
-                                  value={`আসসালামু আলাইকুম ${name}, মুদি দোকান খাতায় আপনার ৳${amt} বাকী রয়েছে। অনুগ্রহ করে পরিশোধ করুন।`}
+                                  value={`আসসালামু আলাইকুম ${name}, কত বাকি অ্যাপে আপনার ৳${amt} বাকী রয়েছে। অনুগ্রহ করে পরিশোধ করুন।`}
                                 />
                                 <a
                                   href={`https://wa.me/?text=${encodeURIComponent(`আসসালামু আলাইকুম ${name}, আপনার ৳${amt} বাকী রয়েছে।`)}`}

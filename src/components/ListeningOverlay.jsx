@@ -120,7 +120,7 @@ export function ListeningOverlay({
 
       {/* Footer Instructions */}
       <p className="text-xs text-stone-500 font-mono">
-        Gemma 4 Native Audio Extraction Engine • Mudi Dokan Khata
+        Gemma 4 Native Audio Extraction Engine • কত বাকি (Koto Baki)
       </p>
     </div>
   );
