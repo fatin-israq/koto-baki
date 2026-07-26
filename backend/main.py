@@ -7,7 +7,7 @@ from routers import ledger, transcribe
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Mudi Dokan Khata API")
+app = FastAPI(title="Koto Baki API")
 
 app.add_middleware(
     CORSMiddleware,
