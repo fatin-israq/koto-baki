@@ -1261,3 +1261,175 @@ main::-webkit-scrollbar-thumb {
   font-size: 12px;
   margin: 6px 0;
 }
+
+/* =========================================================
+   PIE CHART CARD COMPONENT
+   ========================================================= */
+.pie-chart-card {
+  background: var(--paper);
+  border: 1.5px dashed var(--paper-line);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: none;
+}
+
+.pie-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  border-bottom: 1px dashed var(--paper-line);
+  padding-bottom: 10px;
+}
+
+.pie-chart-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pie-chart-total-badge {
+  background: rgba(90, 74, 42, 0.08);
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--paper-line);
+}
+
+.pie-chart-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .pie-chart-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+  }
+}
+
+.pie-svg-container {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.pie-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.pie-slice {
+  cursor: pointer;
+  transition: transform 0.2s ease, fill 0.2s ease, filter 0.2s ease;
+  transform-origin: 50px 50px;
+}
+
+.pie-slice:hover,
+.pie-slice.active {
+  filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.pie-donut-hole {
+  pointer-events: none;
+  fill: var(--paper);
+}
+
+.pie-center-text-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 10px;
+  fill: var(--ink);
+}
+
+.pie-center-text-lbl {
+  font-family: 'Hind Siliguri', sans-serif;
+  font-weight: 600;
+  font-size: 7px;
+  fill: var(--ink-soft);
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(90, 74, 42, 0.07);
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+
+.legend-item:hover,
+.legend-item.active {
+  background: rgba(90, 74, 42, 0.14);
+  border-color: var(--mustard);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.legend-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.legend-label {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.legend-count {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.legend-val-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.legend-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.legend-pct {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
