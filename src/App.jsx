@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import IntroAnimation from './components/IntroAnimation';
 import WriteInAnimation from './components/WriteInAnimation';
@@ -68,6 +68,20 @@ export function App() {
   const [activeReminderCustomer, setActiveReminderCustomer] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [recognitionObj, setRecognitionObj] = useState(null);
+  const [liveTranscript, setLiveTranscript] = useState("");
+  const [volumes, setVolumes] = useState([10, 10, 10, 10, 10]); // Base height
+
+  const audioContextRef = useRef(null);
+  const streamRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animationRef = useRef(null);
+
+  const cleanupAudio = () => {
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    if (audioContextRef.current) audioContextRef.current.close().catch(() => {});
+    setVolumes([10, 10, 10, 10, 10]);
+  };
 
   // Debug logger for state changes
   useEffect(() => {
@@ -111,26 +125,73 @@ export function App() {
 
     const recognition = new SpeechRecognition();
     recognition.lang = 'bn-BD'; // Bengali language code
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.maxAlternatives = 1;
     
     setRecognitionObj(recognition);
 
+    setLiveTranscript("");
     setMicState("listening");
 
+    // Start AudioContext for volume visualization
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then((stream) => {
+        streamRef.current = stream;
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        audioContextRef.current = audioContext;
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 32;
+        analyserRef.current = analyser;
+        const source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const updateVolumes = () => {
+          analyser.getByteFrequencyData(dataArray);
+          // Scale down the frequency values to reasonable pixel heights (min 10px, max 80px)
+          const newVols = [
+            Math.min(80, Math.max(10, dataArray[0] / 3)),
+            Math.min(80, Math.max(10, dataArray[2] / 3)),
+            Math.min(80, Math.max(10, dataArray[4] / 3)),
+            Math.min(80, Math.max(10, dataArray[6] / 3)),
+            Math.min(80, Math.max(10, dataArray[8] / 3))
+          ];
+          setVolumes(newVols);
+          animationRef.current = requestAnimationFrame(updateVolumes);
+        };
+        updateVolumes();
+      })
+      .catch(err => console.error("Mic error:", err));
+
     recognition.onresult = async (event) => {
-      const transcript = event.results[0][0].transcript;
-      console.log("Heard:", transcript);
-      setMicState("processing");
-      try {
-        const result = await transcribeAudio(null, transcript);
-        console.log("AI Result:", result);
-        setPendingEntry(result);
-        setMicState("preview");
-      } catch (e) {
-        console.error("Backend error:", e);
-        alert("Backend API error. Check the console.");
-        setMicState("idle");
+      let interim = "";
+      let final = "";
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          final += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+
+      if (interim) {
+        setLiveTranscript(interim);
+      }
+
+      if (final) {
+        setLiveTranscript(final);
+        console.log("Heard final:", final);
+        setMicState("processing");
+        try {
+          const result = await transcribeAudio(null, final);
+          console.log("AI Result:", result);
+          setPendingEntry(result);
+          setMicState("preview");
+        } catch (e) {
+          console.error("Backend error:", e);
+          alert("Backend API error. Check the console.");
+          setMicState("idle");
+        }
       }
     };
 
@@ -143,14 +204,32 @@ export function App() {
       // If ended but still listening (no result came), reset state
       setMicState((prev) => (prev === "listening" ? "idle" : prev));
       setRecognitionObj(null);
+      cleanupAudio();
     };
 
     recognition.start();
   };
 
-  const stopListening = () => {
+  const stopListening = async () => {
     if (recognitionObj) {
-      recognitionObj.stop();
+      recognitionObj.abort(); // Abort instead of stop so we manually handle the processing
+    }
+    cleanupAudio();
+
+    if (liveTranscript.trim()) {
+      setMicState("processing");
+      try {
+        const result = await transcribeAudio(null, liveTranscript.trim());
+        console.log("AI Result (Manual Stop):", result);
+        setPendingEntry(result);
+        setMicState("preview");
+      } catch (e) {
+        console.error("Backend error:", e);
+        alert("Backend API error. Check the console.");
+        setMicState("idle");
+      }
+    } else {
+      setMicState("idle");
     }
   };
 
@@ -160,6 +239,7 @@ export function App() {
     }
     setMicState("idle");
     setRecognitionObj(null);
+    cleanupAudio();
   };
 
   const retryMic = () => {
@@ -182,6 +262,10 @@ export function App() {
       setDemoIndex((prev) => prev + 1);
     } catch (err) {
       console.error("Failed to save transaction", err);
+      // Fallback: update local state so the UI still works even if backend fails
+      const fallbackEntry = { ...pendingEntry, id: Date.now() };
+      setLedger((prev) => [...prev, fallbackEntry]);
+      setNewlyAddedId(fallbackEntry.id);
     } finally {
       setIsAnimating(false);
       setPendingEntry(null);
@@ -628,11 +712,19 @@ export function App() {
                   >
                     ✕
                   </button>
-                  <div className="bars">
-                    <span /><span /><span /><span /><span />
+                  <div className="bars" style={{ display: "flex", gap: "6px", height: "80px", alignItems: "center", justifyContent: "center" }}>
+                    {volumes.map((v, i) => (
+                      <span key={i} style={{ height: `${v}px`, width: "8px", background: "#3182ce", borderRadius: "4px", transition: "height 0.05s ease", animation: "none" }} />
+                    ))}
                   </div>
                   <div className="hero-label">শুনছি...</div>
-                  <div className="transcript">বলুন — কাস্টমারের নাম, জিনিস, টাকার পরিমাণ</div>
+                  <div className="transcript">
+                    {liveTranscript ? (
+                      <span style={{ color: "#3182ce", fontSize: "1.2em", fontWeight: "bold" }}>{liveTranscript}</span>
+                    ) : (
+                      "বলুন — কাস্টমারের নাম, জিনিস, টাকার পরিমাণ"
+                    )}
+                  </div>
                   <button 
                     onClick={stopListening} 
                     style={{ marginTop: "20px", padding: "10px 20px", background: "#e53e3e", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", fontSize: "16px" }}

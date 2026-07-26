@@ -37,13 +37,14 @@ async def parse_spoken_transaction(spoken_input: str, db_customers: list) -> dic
                     "stream": False,
                     "format": "json" # Ollama supports forcing JSON format
                 },
-                timeout=30.0
+                timeout=120.0  # Increased timeout to 120 seconds for slow model loading
             )
             response.raise_for_status()
             result = response.json()
             
             # The response from Ollama should be in result["response"]
             llm_text = result.get("response", "{}")
+            print(f"Ollama Raw Response: {llm_text}")
             
             # Sometimes LLMs wrap JSON in markdown even with format: json
             if llm_text.startswith("```json"):
