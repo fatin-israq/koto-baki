@@ -15,14 +15,18 @@ async def parse_spoken_transaction(spoken_input: str, db_customers: list) -> dic
     
     Return ONLY a valid JSON object matching this schema, with no markdown formatting or extra text:
     {{
-        "customer": "Name of the customer (string)",
+        "customer": "Name of the customer (string). If unknown, use 'নগদ খদ্দের'",
         "item": "What was bought or 'বাকি পরিশোধ' if it's a payment (string)",
         "amount": "The amount as an integer number (int)",
         "type": "Must be exactly one of: 'sale' (for cash sales), 'baki' (for credit/due), or 'poroshod' (for payment of due)"
     }}
     
+    CRITICAL CLASSIFICATION RULES for "type":
+    - 'sale': Use this if the customer bought items and paid cash, OR if they just bought items but words indicating credit/due are NOT explicitly mentioned.
+    - 'baki': ONLY use this if words implying credit/due are explicitly spoken (e.g., "বাকি", "পরে দিবে", "পাবে"). DO NOT assume 'baki' just because a customer's name is mentioned!
+    - 'poroshod': Use this if the customer is paying off previous dues (e.g., "জমা দিল", "পরিশোধ করল", "দিয়ে গেল").
+    
     If the amount is missing, set it to 0.
-    If the customer is missing or unknown, set it to "নগদ খদ্দের".
     
     Spoken text: "{spoken_input}"
     """

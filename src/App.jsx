@@ -315,15 +315,6 @@ export function App() {
     .filter(([, v]) => v > 0)
     .sort((a, b) => b[1] - a[1]);
 
-  // Mock grouping for Page Flip
-  const chunkedLedger = [];
-  for (let i = 0; i < ledger.length; i += 5) {
-    chunkedLedger.push([`২৪ জুলাই ২০২৬ (পৃষ্ঠা ${Math.floor(i/5)+1})`, ledger.slice(i, i + 5)]);
-  }
-  if (chunkedLedger.length === 0) {
-    chunkedLedger.push(["আজ", []]);
-  }
-
   return (
     <>
       {appState === "intro" && <IntroAnimation onComplete={() => setAppState("main")} />}
