@@ -1,71 +1,47 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import confetti from 'canvas-confetti';
+import './WriteInAnimation.css';
 
-export function WriteInAnimation({ transactionId, onComplete }) {
-  const overlayRef = useRef(null);
-  const penRef = useRef(null);
+export default function WriteInAnimation({ entry, onComplete, existingEntriesCount }) {
+  const containerRef = useRef(null);
+  const entryRowRef = useRef(null);
+  const textRef = useRef(null);
 
   useEffect(() => {
-    if (!transactionId) return;
+    if (!containerRef.current || !entryRowRef.current || !textRef.current) return;
 
-    // Trigger subtle success confetti flourish
-    try {
-      confetti({
-        particleCount: 25,
-        spread: 60,
-        origin: { y: 0.7 },
-        colors: ['#D32F2F', '#2E7D32', '#FFB300']
-      });
-    } catch {
-      // fallback if confetti canvas fails
-    }
+    const tl = gsap.timeline({ onComplete });
 
-    const rowElem = document.getElementById(`row-${transactionId}`);
+    gsap.set(containerRef.current, { scale: 1 });
+    gsap.set(textRef.current, { clipPath: 'inset(0 100% 0 0)' }); 
 
-    if (rowElem && overlayRef.current) {
-      // GSAP Timeline for Zoom -> Write -> Zoom Out
-      const tl = gsap.timeline({
-        onComplete: () => {
-          setTimeout(() => {
-            onComplete();
-          }, 300);
-        }
-      });
+    tl.to(containerRef.current, { scale: 0.8, duration: 0.6, ease: "power2.inOut" });
+    tl.to(containerRef.current, { scale: 1.5, y: -50, duration: 0.8, ease: "power2.inOut" });
+    tl.to(textRef.current, { clipPath: 'inset(0 0% 0 0)', duration: 1.2, ease: "power1.inOut" });
+    tl.to({}, { duration: 0.5 });
+    tl.to(containerRef.current, { scale: 1, y: 0, duration: 0.6, ease: "power2.inOut" });
 
-      // Step 1: Flash row with ink glow
-      tl.to(rowElem, {
-        scale: 1.03,
-        backgroundColor: '#fef3c7',
-        duration: 0.4,
-        ease: 'power2.out'
-      })
-      // Step 2: Ink reveal effect
-      .to(rowElem.querySelectorAll('.ink-entry-text'), {
-        opacity: 1,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: 'power1.inOut'
-      })
-      // Step 3: Return row to natural paper look
-      .to(rowElem, {
-        scale: 1,
-        backgroundColor: 'transparent',
-        duration: 0.5,
-        ease: 'power2.in'
-      });
-    } else {
-      const timer = setTimeout(onComplete, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [transactionId, onComplete]);
+  }, [onComplete]);
 
   return (
-    <div
-      ref={overlayRef}
-      className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center opacity-0 transition-opacity duration-300"
-    >
-      <div className="bg-red-950/20 backdrop-blur-[1px] inset-0 absolute" />
+    <div className="write-in-overlay">
+      <div className="khata-page-mock" ref={containerRef}>
+        <div className="margin-rule-fake"></div>
+        <div className="mock-entries">
+          {Array.from({ length: existingEntriesCount }).map((_, i) => (
+            <div key={i} className="mock-row">
+              <div className="m-who">পূর্বের হিসাব {i+1}</div>
+            </div>
+          ))}
+          <div className="mock-row new-entry" ref={entryRowRef}>
+            <div className="m-who text-reveal" ref={textRef}>
+              <span style={{ color: entry.type === 'baki' ? '#9E2B25' : '#1E2A38' }}>
+                {entry.customer} - {entry.item} : ৳{entry.amount}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
