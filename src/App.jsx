@@ -60,13 +60,25 @@ function Icon({ name }) {
 export function App() {
   const [appState, setAppState] = useState("intro"); // intro | main
   const [screen, setScreen] = useState("home"); // home | baki | sales | customers | all
-  const [micState, setMicState] = useState("idle"); // idle | listening | preview
+  const [micState, setMicState] = useState("idle"); // idle | listening | processing | preview
   const [isAnimating, setIsAnimating] = useState(false);
   const [demoIndex, setDemoIndex] = useState(0);
   const [pendingEntry, setPendingEntry] = useState(null);
   const [newlyAddedId, setNewlyAddedId] = useState(null);
   const [activeReminderCustomer, setActiveReminderCustomer] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [recognitionObj, setRecognitionObj] = useState(null);
+
+  // Debug logger for state changes
+  useEffect(() => {
+    console.log("[State Update]", {
+      appState,
+      screen,
+      micState,
+      isAnimating,
+      pendingEntry
+    });
+  }, [appState, screen, micState, isAnimating, pendingEntry]);
 
   // Initialize with sample ledger data
   const [ledger, setLedger] = useState([]);
@@ -101,17 +113,23 @@ export function App() {
     recognition.lang = 'bn-BD'; // Bengali language code
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
+    
+    setRecognitionObj(recognition);
 
     setMicState("listening");
 
     recognition.onresult = async (event) => {
       const transcript = event.results[0][0].transcript;
+      console.log("Heard:", transcript);
+      setMicState("processing");
       try {
         const result = await transcribeAudio(null, transcript);
+        console.log("AI Result:", result);
         setPendingEntry(result);
         setMicState("preview");
       } catch (e) {
-        console.error(e);
+        console.error("Backend error:", e);
+        alert("Backend API error. Check the console.");
         setMicState("idle");
       }
     };
@@ -124,9 +142,24 @@ export function App() {
     recognition.onend = () => {
       // If ended but still listening (no result came), reset state
       setMicState((prev) => (prev === "listening" ? "idle" : prev));
+      setRecognitionObj(null);
     };
 
     recognition.start();
+  };
+
+  const stopListening = () => {
+    if (recognitionObj) {
+      recognitionObj.stop();
+    }
+  };
+
+  const cancelListening = () => {
+    if (recognitionObj) {
+      recognitionObj.abort();
+    }
+    setMicState("idle");
+    setRecognitionObj(null);
   };
 
   const retryMic = () => {
@@ -587,12 +620,32 @@ export function App() {
           <div className="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && retryMic()}>
             <div className="sheet">
               {micState === "listening" && (
-                <div className="listening">
+                <div className="listening" style={{ position: "relative" }}>
+                  <button 
+                    onClick={cancelListening} 
+                    style={{ position: "absolute", top: "10px", right: "15px", background: "none", border: "none", fontSize: "24px", cursor: "pointer", color: "#666" }}
+                    title="বাতিল করুন (Cancel)"
+                  >
+                    ✕
+                  </button>
                   <div className="bars">
                     <span /><span /><span /><span /><span />
                   </div>
                   <div className="hero-label">শুনছি...</div>
                   <div className="transcript">বলুন — কাস্টমারের নাম, জিনিস, টাকার পরিমাণ</div>
+                  <button 
+                    onClick={stopListening} 
+                    style={{ marginTop: "20px", padding: "10px 20px", background: "#e53e3e", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", fontSize: "16px" }}
+                  >
+                    থামান (Stop)
+                  </button>
+                </div>
+              )}
+
+              {micState === "processing" && (
+                <div className="listening">
+                  <div className="hero-label">প্রসেস হচ্ছে...</div>
+                  <div className="transcript">AI হিসাবটি তৈরি করছে, একটু অপেক্ষা করুন...</div>
                 </div>
               )}
 
