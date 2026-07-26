@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import IntroAnimation from './components/IntroAnimation';
 import WriteInAnimation from './components/WriteInAnimation';
 import PageFlipView from './components/PageFlipView';
+import PieChart from './components/PieChart';
 import { fetchLedger, transcribeAudio, createTransaction } from './services/api';
 
 // Demo transcripts simulating Gemma 4's Native Audio JSON results (used as fallback or for testing)
@@ -666,6 +667,7 @@ export function App() {
             {/* Screen 5: ALL Transactions */}
             {screen === "all" && (
               <div className="screen-container">
+                <PieChart ledger={filteredLedger} title="সকল লেনদেনের পাই চার্ট বিবরণ" />
                 <div className="all-header">সকল লেনদেনের তালিকা ({filteredLedger.length}টি)</div>
                 <div className="all-ledger-list">
                   {filteredLedger.length ? (
