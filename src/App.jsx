@@ -322,7 +322,6 @@ export function App() {
                 </div>
 
                 {/* Quick Action Grid */}
-                <div className="grid-label">দ্রুত দেখুন</div>
                 <div className="grid">
                   <div className="tile baki" onClick={() => setScreen("baki")}>
                     <div className="icon-box"><Icon name="baki" /></div>
@@ -505,10 +504,19 @@ export function App() {
               </div>
             )}
 
-            {/* Screen 5: ALL Transactions (Page Flip Book View) */}
+            {/* Screen 5: ALL Transactions */}
             {screen === "all" && (
-              <div className="screen-container" style={{ padding: 0, height: '100%', overflow: 'hidden' }}>
-                <PageFlipView groupedLedger={chunkedLedger} rowHTML={rowHTML} />
+              <div className="screen-container">
+                <div className="all-header">সকল লেনদেনের তালিকা ({filteredLedger.length}টি)</div>
+                <div className="all-ledger-list">
+                  {filteredLedger.length ? (
+                    filteredLedger.slice().reverse().map(rowHTML)
+                  ) : (
+                    <div className="empty-note">
+                      {searchQuery ? "কোনো লেনদেন পাওয়া যায়নি" : "এখনো কোনো হিসাব লেখা হয়নি"}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </main>
